@@ -26,7 +26,7 @@ def main() -> None:
     model.add(ks.layers.MaxPooling2D((2, 2)))  # Add a Max Pooling layer
 
     # Add another convolutional layer and pooling layer
-    model.add(ks.layers.Conv2D(64, (3, 3), activation="relu"))
+    model.add(ks.layers.Conv2D(64, (3, 3), activation="relu", name="conv2"))
     model.add(ks.layers.MaxPooling2D((2, 2)))
 
     # Flatten the results and add a fully connected layer
@@ -44,6 +44,8 @@ def main() -> None:
         loss="sparse_categorical_crossentropy",
         metrics=["accuracy"],
     )
+
+    model.summary()
 
     model.fit(
         train_images,
