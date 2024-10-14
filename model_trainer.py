@@ -1,9 +1,15 @@
 import keras as ks
 
+
 def main() -> None:
     epochs_it: int = int(input("Enter the number of epochs: "))
+    dropout_value: float = float(input("Enter the dropout value (0.0 to 1.0): "))
+    dense_units: int = int(input("Enter the number of units in the dense layer: "))
+    learning_rate: float = float(input("Enter the learning rate (0.0... to 1.0): "))
 
-    (train_images, train_labels), (test_images, test_labels) = ks.datasets.mnist.load_data()
+    (train_images, train_labels), (test_images, test_labels) = (
+        ks.datasets.mnist.load_data()
+    )
 
     # Normalize pixel values to be between 0 and 1
     train_images = train_images / 255.0
@@ -27,11 +33,16 @@ def main() -> None:
     model.add(ks.layers.Flatten())
     model.add(ks.layers.Dense(64, activation="relu"))
 
+    # Dropout layer to prevent overfitting
+    model.add(ks.layers.Dropout(dropout_value))
+
     # Output layer with 10 units for the 10 digit classes, with softmax activation
-    model.add(ks.layers.Dense(10, activation="softmax"))
+    model.add(ks.layers.Dense(dense_units, activation="softmax"))
 
     model.compile(
-        optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"]
+        optimizer=ks.optimizers.Adam(learning_rate=learning_rate),
+        loss="sparse_categorical_crossentropy",
+        metrics=["accuracy"],
     )
 
     model.fit(
@@ -39,9 +50,11 @@ def main() -> None:
         train_labels,
         epochs=epochs_it,
         validation_data=(test_images, test_labels),
+        callbacks=[ks.callbacks.TensorBoard(log_dir="./logs")],
     )
 
     model.save("model.keras")
+
 
 if __name__ == "__main__":
     main()
