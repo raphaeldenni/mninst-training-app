@@ -2,6 +2,7 @@
 .ruff_cache/
 *.pyc
 
-digit.eps
 model.keras
+digit.eps
+grad_cam_explanation.png
 logs/
