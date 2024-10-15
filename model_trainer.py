@@ -40,7 +40,7 @@ def main() -> None:
     model.add(ks.layers.Dense(dense_units, activation="softmax"))
 
     model.compile(
-        optimizer=ks.optimizers.Adam(learning_rate=learning_rate),
+        optimizer=ks.optimizers.Adam(learning_rate=learning_rate),  # pyright: ignore
         loss="sparse_categorical_crossentropy",
         metrics=["accuracy"],
     )
