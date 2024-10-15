@@ -7,60 +7,77 @@ from signxai.methods.wrappers import calculate_relevancemap
 from signxai.utils.utils import normalize_heatmap
 
 
-# Function to draw on the canvas
-def paint(event) -> None:
-    x1, y1 = (event.x - 1), (event.y - 1)
-    x2, y2 = (event.x + 1), (event.y + 1)
-    canvas.create_oval(x1, y1, x2, y2, fill="black", width=5)
+def conv_explain(image) -> None:
+    """Explain the prediction of a convolutional neural network.
 
-
-def explain() -> None:
-    pass
+    Args:
+        image: The image to explain.
+    """
     # Remove softmax
     model.layers[-1].activation = None
 
     # Calculate relevancemaps
-    i = np.random.randint(low=0, high=len(val_images))
-    x = val_images[i]
-    R1 = calculate_relevancemap("gradient_x_sign_mu_0_5", np.array(x), model)
+    R1 = calculate_relevancemap("gradient_x_sign_mu_0_5", np.array(image), model)
     R2 = calculate_relevancemap(
-        "grad_cam", np.array(x), model, last_conv_layer_name="conv2d_1"
+        "grad_cam", np.array(image), model, last_conv_layer_name="conv2"
     )
 
     # Visualize heatmaps
     fig, axs = plt.subplots(ncols=3, nrows=1, figsize=(12, 4))
-    axs[0].imshow(x, cmap="gist_gray_r", clim=(-1, 1))
+
+    axs[0].imshow(image, cmap="gist_gray_r", clim=(-1, 1))
     axs[0].set_title("input")
+
     axs[1].matshow(normalize_heatmap(R1), cmap="seismic", clim=(-1, 1))
     axs[1].set_title("Gradient x SIGN")
+
     axs[2].matshow(normalize_heatmap(R2), cmap="seismic", clim=(-1, 1))
     axs[2].set_title("Grad CAM")
 
     plt.show()
 
 
-# Function to predict the digit drawn
-def predict() -> tuple[int, int]:
+def conv_predict() -> tuple[int, int]:
+    """Predict the digit drawn on the canvas.
+
+    Returns:
+        tuple[int, int]: The predicted digit and the second predicted digit.
+    """
     # Get the image from the canvas
     image = canvas.postscript(file="digit.eps", colormode="color")
     image = ks.preprocessing.image.load_img(
         "digit.eps", color_mode="grayscale", target_size=(28, 28)
     )
-    image = ks.preprocessing.image.img_to_array(image)
-    image = image / 255.0
-    image = image.reshape((1, 28, 28, 1))
+
+    # Convert the image to an array
+    image_array = ks.preprocessing.image.img_to_array(image)
+    image_array = image_array / 255.0
+    image_array = image_array.reshape((1, 28, 28, 1))
 
     # Predict the digit
-    prediction = model.predict(image)
+    prediction = model.predict(image_array)
     digit = prediction.argmax()
     second_digit = prediction.argsort()[0][-2]
+
+    conv_explain(image_array)
 
     return digit, second_digit
 
 
+def canva_paint(event: tk.Event) -> None:
+    """Paint on the canvas.
+
+    Args:
+        event (tk.Event): The event that triggered the function.
+    """
+    x1, y1 = (event.x - 1), (event.y - 1)
+    x2, y2 = (event.x + 1), (event.y + 1)
+    canvas.create_oval(x1, y1, x2, y2, fill="black", width=5)
+
+
 model: ks.models.Sequential = ks.models.load_model("model.keras")
 
-# Display a window to draw with mouse a digit
+# Display a window to draw with mouse a digit and add some buttons
 window: tk.Tk = tk.Tk()
 
 canvas: tk.Canvas = tk.Canvas(window, width=280, height=280, bg="white")
@@ -76,8 +93,8 @@ predict_button: tk.Button = tk.Button(
     window,
     text="Predict",
     command=lambda: [
-        prediction_label.config(text=f"Prediction: {predict()[0]}"),
-        second_prediction_label.config(text=f"Second Prediction: {predict()[1]}"),
+        prediction_label.config(text=f"Prediction: {conv_predict()[0]}"),
+        second_prediction_label.config(text=f"Second Prediction: {conv_predict()[1]}"),
     ],
 )
 predict_button.pack()
@@ -88,6 +105,6 @@ clear_button: tk.Button = tk.Button(
 clear_button.pack()
 
 # Bind the mouse to the canvas to draw only when the button is pressed
-window.bind("<B1-Motion>", paint)
+window.bind("<B1-Motion>", canva_paint)
 
 window.mainloop()
