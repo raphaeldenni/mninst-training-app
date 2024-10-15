@@ -1,12 +1,42 @@
 import tkinter as tk
 
 import keras as ks
+import matplotlib.pyplot as plt
+import numpy as np
+from signxai.methods.wrappers import calculate_relevancemap
+from signxai.utils.utils import normalize_heatmap
+
 
 # Function to draw on the canvas
 def paint(event) -> None:
     x1, y1 = (event.x - 1), (event.y - 1)
     x2, y2 = (event.x + 1), (event.y + 1)
     canvas.create_oval(x1, y1, x2, y2, fill="black", width=5)
+
+
+def explain() -> None:
+    pass
+    # Remove softmax
+    model.layers[-1].activation = None
+
+    # Calculate relevancemaps
+    i = np.random.randint(low=0, high=len(val_images))
+    x = val_images[i]
+    R1 = calculate_relevancemap("gradient_x_sign_mu_0_5", np.array(x), model)
+    R2 = calculate_relevancemap(
+        "grad_cam", np.array(x), model, last_conv_layer_name="conv2d_1"
+    )
+
+    # Visualize heatmaps
+    fig, axs = plt.subplots(ncols=3, nrows=1, figsize=(12, 4))
+    axs[0].imshow(x, cmap="gist_gray_r", clim=(-1, 1))
+    axs[0].set_title("input")
+    axs[1].matshow(normalize_heatmap(R1), cmap="seismic", clim=(-1, 1))
+    axs[1].set_title("Gradient x SIGN")
+    axs[2].matshow(normalize_heatmap(R2), cmap="seismic", clim=(-1, 1))
+    axs[2].set_title("Grad CAM")
+
+    plt.show()
 
 
 # Function to predict the digit drawn
