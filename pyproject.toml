@@ -11,3 +11,7 @@ dependencies = [
     "tensorflow-datasets>=4.9.6",
     "tensorflow>=2.17.0",
 ]
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
