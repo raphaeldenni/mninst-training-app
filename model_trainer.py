@@ -1,7 +1,41 @@
 import keras as ks
+from keras import Sequential
+
+
+def add_layers(model: Sequential, *args) -> Sequential:
+    """Add layers to the model.
+
+    Args:
+    model (Sequential): The model to add layers to.
+    *args: The arguments to pass to the model.
+
+    Returns:
+    Sequential: The model with the added layers.
+    """
+    # Add a Convolutional layer with 32 filters, a 3x3 kernel, and ReLU activation
+    model.add(ks.layers.Conv2D(32, (3, 3), activation="relu", input_shape=(28, 28, 1)))
+    model.add(ks.layers.MaxPooling2D((2, 2)))  # Add a Max Pooling layer
+
+    # Add another convolutional layer and pooling layer
+    model.add(ks.layers.Conv2D(64, (3, 3), activation="relu", name="conv2D_last"))
+    model.add(ks.layers.MaxPooling2D((2, 2)))
+
+    # Flatten the results and add a fully connected layer
+    model.add(ks.layers.Flatten())
+    model.add(ks.layers.Dense(64, activation="relu"))
+
+    # Dropout layer to prevent overfitting
+    model.add(ks.layers.Dropout(args[0]))
+
+    # Output layer with 10 units for the 10 digit classes, with softmax activation
+    model.add(ks.layers.Dense(args[1], activation="softmax"))
+
+    return model
 
 
 def main() -> None:
+    """Train a model to recognize handwritten digits."""
+    # Get the data
     epochs_it: int = int(input("Enter the number of epochs: "))
     dropout_value: float = float(input("Enter the dropout value (0.0 to 1.0): "))
     dense_units: int = int(input("Enter the number of units in the dense layer: "))
@@ -19,25 +53,10 @@ def main() -> None:
     train_images = train_images.reshape((train_images.shape[0], 28, 28, 1))
     test_images = test_images.reshape((test_images.shape[0], 28, 28, 1))
 
+    # Build the model
     model = ks.models.Sequential()
 
-    # Add a Convolutional layer with 32 filters, a 3x3 kernel, and ReLU activation
-    model.add(ks.layers.Conv2D(32, (3, 3), activation="relu", input_shape=(28, 28, 1)))
-    model.add(ks.layers.MaxPooling2D((2, 2)))  # Add a Max Pooling layer
-
-    # Add another convolutional layer and pooling layer
-    model.add(ks.layers.Conv2D(64, (3, 3), activation="relu", name="conv2D_last"))
-    model.add(ks.layers.MaxPooling2D((2, 2)))
-
-    # Flatten the results and add a fully connected layer
-    model.add(ks.layers.Flatten())
-    model.add(ks.layers.Dense(64, activation="relu"))
-
-    # Dropout layer to prevent overfitting
-    model.add(ks.layers.Dropout(dropout_value))
-
-    # Output layer with 10 units for the 10 digit classes, with softmax activation
-    model.add(ks.layers.Dense(dense_units, activation="softmax"))
+    model = add_layers(model, dropout_value, dense_units)
 
     model.compile(
         optimizer=ks.optimizers.Adam(learning_rate=learning_rate),  # pyright: ignore
