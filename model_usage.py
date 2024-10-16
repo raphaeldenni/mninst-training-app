@@ -4,8 +4,6 @@ import keras as ks
 import numpy as np
 from tf_explain.core.grad_cam import GradCAM
 
-model = ks.models.load_model("model.keras")
-
 
 def draw_canva_paint(event: tk.Event) -> None:
     """Paint on the canvas.
@@ -62,19 +60,27 @@ def conv_explain() -> None:
     """
     image = get_digit_image()
 
-    # Assuming `model` is your trained model and `image` is the image you want to explain
-    image_to_explain = np.expand_dims(image, axis=0)  # pyright: ignore
+    # Convert image to array and preprocess
+    image_to_explain = ks.preprocessing.image.img_to_array(image)
+    image_to_explain = np.expand_dims(image_to_explain, axis=0)
 
+    # Ensure the model has been called once
+    model.predict(image_to_explain)  # type: ignore
+
+    # Run GradCAM
     explainer = GradCAM()
     grid = explainer.explain(
-        (image_to_explain, None), model, class_index=0, layer_name="conv2D_last"
-    )  # Specify the class to explain
+        (image_to_explain, None), model, class_index=0, layer_name="conv2d_last"
+    )
 
     # Visualize the explanation (overlay heatmap on the image)
     explainer.save(grid, ".", "grad_cam_explanation.png")
 
 
 # --- Main ---
+
+# Load the model
+model = ks.models.load_model("model.keras")
 
 # Display a window to draw with mouse a digit and predict it
 window: tk.Tk = tk.Tk()

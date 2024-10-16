@@ -20,7 +20,7 @@ def add_layers(model: Sequential, *args) -> Sequential:
     model.add(ks.layers.MaxPooling2D((2, 2)))  # Add a Max Pooling layer
 
     # Add another convolutional layer and pooling layer
-    model.add(ks.layers.Conv2D(64, (3, 3), activation="relu", name="conv2D_last"))
+    model.add(ks.layers.Conv2D(64, (3, 3), activation="relu", name="conv2d_last"))
     model.add(ks.layers.MaxPooling2D((2, 2)))
 
     # Flatten the results and add a fully connected layer
