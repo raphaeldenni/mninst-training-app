@@ -16,16 +16,21 @@ def draw_canva_paint(event: tk.Event) -> None:
     draw_canva.create_oval(x1, y1, x2, y2, fill="black", width=5)
 
 
-def get_digit_image():
+def get_digit_image() -> np.ndarray:
     """Get the digit drawn on the canvas.
 
     Returns:
-        The image of the digit.
+        np.ndarray: The image of the digit.
     """
+    # Load the image from the file
     image = draw_canva.postscript(file="digit.eps", colormode="color")
     image = ks.preprocessing.image.load_img(
         "digit.eps", color_mode="grayscale", target_size=(28, 28)
     )
+
+    # Convert the image to an array
+    image = ks.preprocessing.image.img_to_array(image)
+    image = image / 255.0
 
     return image
 
@@ -39,13 +44,12 @@ def conv_predict() -> tuple[int, int]:
     # Get the image from the canvas
     image = get_digit_image()
 
-    # Convert the image to an array
-    image_array = ks.preprocessing.image.img_to_array(image)
-    image_array = image_array / 255.0
-    image_array = image_array.reshape((1, 28, 28, 1))
+    image = image.reshape((1, 28, 28, 1))
+
+    model.predict(image)  # type: ignore
 
     # Predict the digit
-    prediction = model.predict(image_array)  # type: ignore
+    prediction = model.predict(image)  # type: ignore
     digit = prediction.argmax()
     second_digit = prediction.argsort()[0][-2]
 
@@ -59,25 +63,21 @@ def conv_explain() -> None:
         image: The image to explain.
     """
     image = get_digit_image()
+    image = np.expand_dims(image, axis=0)
 
-    # Convert image to array and preprocess
-    image_to_explain = ks.preprocessing.image.img_to_array(image)
-    image_to_explain = np.expand_dims(image_to_explain, axis=0)
+    # Ensure the model is initialized
+    model.predict(image)  # type: ignore
 
-    # Ensure the model has been called once
-    model.predict(image_to_explain)  # type: ignore
-
-    # Run GradCAM
+    # Use GradCAM for explanation
     explainer = GradCAM()
     grid = explainer.explain(
-        (image_to_explain, None), model, class_index=0, layer_name="conv2d_last"
+        (image, None), model, class_index=0, layer_name="conv2d_last"
     )
 
-    # Visualize the explanation (overlay heatmap on the image)
     explainer.save(grid, ".", "grad_cam_explanation.png")
 
 
-# --- Main ---
+# --- Main Program ---
 
 # Load the model
 model = ks.models.load_model("model.keras")

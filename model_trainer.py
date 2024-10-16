@@ -6,11 +6,11 @@ def add_layers(model: Sequential, *args) -> Sequential:
     """Add layers to the model.
 
     Args:
-    model (Sequential): The model to add layers to.
-    *args: The arguments to pass to the model.
+        model (Sequential): The model to add layers to.
+        *args: The arguments to pass to the model.
 
     Returns:
-    Sequential: The model with the added layers.
+        Sequential: The model with the added layers.
     """
     # Add an input layer
     model.add(ks.layers.InputLayer(shape=(28, 28, 1)))
