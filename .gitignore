@@ -4,5 +4,4 @@
 
 model.keras
 digit.eps
-grad_cam_explanation.png
 logs/
