@@ -32,26 +32,6 @@ def get_digit_image():
     return image
 
 
-def conv_explain() -> None:
-    """Explain the prediction of a convolutional neural network.
-
-    Args:
-        image: The image to explain.
-    """
-    image = get_digit_image()
-
-    # Assuming `model` is your trained model and `image` is the image you want to explain
-    image_to_explain = np.expand_dims(image, axis=0)  # pyright: ignore
-
-    explainer = GradCAM()
-    grid = explainer.explain(
-        (image_to_explain, None), model, class_index=0, layer_name="conv2D_last"
-    )  # Specify the class to explain
-
-    # Visualize the explanation (overlay heatmap on the image)
-    explainer.save(grid, ".", "grad_cam_explanation.png")
-
-
 def conv_predict() -> tuple[int, int]:
     """Predict the digit drawn on the canvas.
 
@@ -74,7 +54,29 @@ def conv_predict() -> tuple[int, int]:
     return digit, second_digit
 
 
-# Display a window to draw with mouse a digit and add some buttons
+def conv_explain() -> None:
+    """Explain the prediction of a convolutional neural network.
+
+    Args:
+        image: The image to explain.
+    """
+    image = get_digit_image()
+
+    # Assuming `model` is your trained model and `image` is the image you want to explain
+    image_to_explain = np.expand_dims(image, axis=0)  # pyright: ignore
+
+    explainer = GradCAM()
+    grid = explainer.explain(
+        (image_to_explain, None), model, class_index=0, layer_name="conv2D_last"
+    )  # Specify the class to explain
+
+    # Visualize the explanation (overlay heatmap on the image)
+    explainer.save(grid, ".", "grad_cam_explanation.png")
+
+
+# --- Main ---
+
+# Display a window to draw with mouse a digit and predict it
 window: tk.Tk = tk.Tk()
 
 draw_canva: tk.Canvas = tk.Canvas(window, width=280, height=280, bg="white")
