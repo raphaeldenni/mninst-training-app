@@ -2,7 +2,6 @@ import tkinter as tk
 
 import keras as ks
 import numpy as np
-from tf_explain.core.grad_cam import GradCAM
 
 
 def draw_canva_paint(event: tk.Event) -> None:
@@ -54,20 +53,8 @@ def conv_predict() -> tuple[int, int]:
 
 
 def conv_explain() -> None:
-    """Explain the prediction of a convolutional neural network.
-
-    Args:
-        image: The image to explain.
-    """
-    image = get_digit_image()
-
-    # Use GradCAM for explanation
-    explainer = GradCAM()
-    grid = explainer.explain(
-        (image, None), model, class_index=0, layer_name="conv2d_last"
-    )
-
-    explainer.save(grid, ".", "grad_cam_explanation.png")
+    """Explain the prediction of a convolutional neural network."""
+    pass
 
 
 # --- Main Program ---
