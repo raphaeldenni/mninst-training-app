@@ -81,7 +81,7 @@ model = ks.models.load_model("model.keras")
 window: tk.Tk = tk.Tk()
 
 draw_canva: tk.Canvas = tk.Canvas(window, width=280, height=280, bg="white")
-draw_canva.grid(row=0, column=0, rowspan=4)
+draw_canva.grid(row=0, column=0, rowspan=5)
 
 prediction_label: tk.Label = tk.Label(window, text="Prediction: ")
 prediction_label.grid(row=0, column=1, sticky="NW", padx=20)
@@ -109,7 +109,7 @@ explain_button: tk.Button = tk.Button(
     text="Explain",
     command=lambda: conv_explain(),
 )
-explain_button.grid(row=4, column=0, columnspan=2, sticky="W", padx=100, pady=20)
+explain_button.grid(row=4, column=1, sticky="NW", padx=20)
 
 # Bind the mouse to the canvas to draw only when the button is pressed
 window.bind("<B1-Motion>", draw_canva_paint)
