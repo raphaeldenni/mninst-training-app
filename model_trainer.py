@@ -12,8 +12,11 @@ def add_layers(model: Sequential, *args) -> Sequential:
     Returns:
     Sequential: The model with the added layers.
     """
+    # Add an input layer
+    model.add(ks.layers.InputLayer(shape=(28, 28, 1)))
+
     # Add a Convolutional layer with 32 filters, a 3x3 kernel, and ReLU activation
-    model.add(ks.layers.Conv2D(32, (3, 3), activation="relu", input_shape=(28, 28, 1)))
+    model.add(ks.layers.Conv2D(32, (3, 3), activation="relu"))
     model.add(ks.layers.MaxPooling2D((2, 2)))  # Add a Max Pooling layer
 
     # Add another convolutional layer and pooling layer
