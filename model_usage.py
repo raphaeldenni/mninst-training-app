@@ -2,6 +2,7 @@ import tkinter as tk
 
 import keras as ks
 import numpy as np
+import shap
 
 
 def draw_canva_paint(event: tk.Event) -> None:
@@ -54,7 +55,21 @@ def conv_predict() -> tuple[int, int]:
 
 def conv_explain() -> None:
     """Explain the prediction of a convolutional neural network."""
-    pass
+    image = get_digit_image()
+    (train_images, _), _ = ks.datasets.mnist.load_data()
+
+    # Ensure the image has the shape (1, 28, 28, 1) for batch processing
+    image = image.reshape((1, 28, 28, 1))
+    train_images = (
+        train_images[:1000].reshape((-1, 28, 28, 1)).astype(np.float32) / 255.0
+    )
+
+    # Use SHAP DeepExplainer for CNN models
+    explainer = shap.DeepExplainer(model, train_images)
+    shap_values = explainer.shap_values(image)
+
+    # Display the SHAP summary plot for the image
+    shap.image_plot(shap_values, image)
 
 
 # --- Main Program ---
