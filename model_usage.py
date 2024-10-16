@@ -43,10 +43,7 @@ def conv_predict() -> tuple[int, int]:
     """
     # Get the image from the canvas
     image = get_digit_image()
-
     image = image.reshape((1, 28, 28, 1))
-
-    model.predict(image)  # type: ignore
 
     # Predict the digit
     prediction = model.predict(image)  # type: ignore
@@ -63,10 +60,6 @@ def conv_explain() -> None:
         image: The image to explain.
     """
     image = get_digit_image()
-    image = np.expand_dims(image, axis=0)
-
-    # Ensure the model is initialized
-    model.predict(image)  # type: ignore
 
     # Use GradCAM for explanation
     explainer = GradCAM()
