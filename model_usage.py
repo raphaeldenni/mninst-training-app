@@ -28,9 +28,10 @@ def get_digit_image() -> np.ndarray:
         "digit.eps", color_mode="grayscale", target_size=(28, 28)
     )
 
-    # Convert the image to an array
+    # Convert the image
     image = ks.preprocessing.image.img_to_array(image)
     image = image / 255.0
+    image = image.reshape((1, 28, 28, 1))
 
     return image
 
@@ -43,7 +44,6 @@ def conv_predict() -> tuple[int, int]:
     """
     # Get the image from the canvas
     image = get_digit_image()
-    image = image.reshape((1, 28, 28, 1))
 
     # Predict the digit
     prediction = model.predict(image)  # type: ignore
@@ -58,8 +58,6 @@ def conv_explain() -> None:
     image = get_digit_image()
     (train_images, _), _ = ks.datasets.mnist.load_data()
 
-    # Ensure the image has the shape (1, 28, 28, 1) for batch processing
-    image = image.reshape((1, 28, 28, 1))
     train_images = (
         train_images[:1000].reshape((-1, 28, 28, 1)).astype(np.float32) / 255.0
     )
@@ -99,17 +97,17 @@ predict_button: tk.Button = tk.Button(
 )
 predict_button.grid(row=2, column=1, sticky="NW", padx=20)
 
-clear_button: tk.Button = tk.Button(
-    window, text="Clear", command=lambda: draw_canva.delete("all")
-)
-clear_button.grid(row=3, column=1, sticky="NW", padx=20)
-
 explain_button: tk.Button = tk.Button(
     window,
     text="Explain",
     command=lambda: conv_explain(),
 )
-explain_button.grid(row=4, column=1, sticky="NW", padx=20)
+explain_button.grid(row=3, column=1, sticky="NW", padx=20)
+
+clear_button: tk.Button = tk.Button(
+    window, text="Clear", command=lambda: draw_canva.delete("all")
+)
+clear_button.grid(row=4, column=1, sticky="NW", padx=20)
 
 # Bind the mouse to the canvas to draw only when the button is pressed
 window.bind("<B1-Motion>", draw_canva_paint)
