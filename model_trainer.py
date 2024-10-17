@@ -69,12 +69,20 @@ def main() -> None:
 
     model.summary()
 
+    # Add EarlyStopping callback to stop training when validation accuracy stops improving
+    early_stopping = ks.callbacks.EarlyStopping(
+        monitor="val_accuracy", patience=3, restore_best_weights=True, mode="max"
+    )
+
+    # Add TensorBoard callback to visualize training
+    tensorboard = ks.callbacks.TensorBoard(log_dir="./logs")
+
     model.fit(
         train_images,
         train_labels,
         epochs=epochs_it,
         validation_data=(test_images, test_labels),
-        callbacks=[ks.callbacks.TensorBoard(log_dir="./logs")],
+        callbacks=[early_stopping, tensorboard],
     )
 
     model.save("model.keras")
