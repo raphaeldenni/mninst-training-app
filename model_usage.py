@@ -4,6 +4,8 @@ import keras as ks
 import numpy as np
 import shap
 
+DEFAULT_PEN_WIDTH: int = 15
+
 
 def draw_canva_paint(event: tk.Event) -> None:
     """Paint on the canvas.
@@ -13,7 +15,18 @@ def draw_canva_paint(event: tk.Event) -> None:
     """
     x1, y1 = (event.x - 1), (event.y - 1)
     x2, y2 = (event.x + 1), (event.y + 1)
-    draw_canva.create_oval(x1, y1, x2, y2, fill="black", width=5)
+
+    draw_canva.create_oval(x1, y1, x2, y2, fill="black", width=pen_width)
+
+
+def get_pen_width(event: tk.Event) -> None:
+    """Get the pen width from the scale.
+
+    Args:
+        event (tk.Event): The event that triggered the function.
+    """
+    global pen_width
+    pen_width = int(pen_width_slider.get())
 
 
 def get_digit_image() -> np.ndarray:
@@ -55,7 +68,7 @@ def conv_predict() -> tuple[int, int]:
 
 def conv_explain() -> None:
     """Explain the prediction of a convolutional neural network."""
-    image = get_digit_image()
+    digit_image = get_digit_image()
     (train_images, _), _ = ks.datasets.mnist.load_data()
 
     train_images = (
@@ -64,10 +77,10 @@ def conv_explain() -> None:
 
     # Use SHAP DeepExplainer for CNN models
     explainer = shap.DeepExplainer(model, train_images)
-    shap_values = explainer.shap_values(image)
+    shap_values = explainer.shap_values(digit_image)
 
     # Display the SHAP summary plot for the image
-    shap.image_plot(shap_values, image)
+    shap.image_plot(shap_values, digit_image)
 
 
 # --- Main Program ---
@@ -78,14 +91,28 @@ model = ks.models.load_model("model.keras")
 # Display a window to draw with mouse a digit and predict it
 window: tk.Tk = tk.Tk()
 
+pen_width: int = DEFAULT_PEN_WIDTH
+
 draw_canva: tk.Canvas = tk.Canvas(window, width=280, height=280, bg="white")
-draw_canva.grid(row=0, column=0, rowspan=5)
+draw_canva.grid(row=0, column=0, rowspan=6)
 
 prediction_label: tk.Label = tk.Label(window, text="Prediction: ")
 prediction_label.grid(row=0, column=1, sticky="NW", padx=20)
 
 second_prediction_label: tk.Label = tk.Label(window, text="Second Prediction: ")
 second_prediction_label.grid(row=1, column=1, sticky="NW", padx=20)
+
+pen_width_slider: tk.Scale = tk.Scale(
+    window,
+    from_=10,
+    to=20,
+    orient="horizontal",
+    label="Width",
+    length=200,
+    command=get_pen_width,  # type: ignore
+)
+pen_width_slider.set(DEFAULT_PEN_WIDTH)
+pen_width_slider.grid(row=2, column=1, sticky="NW", padx=20)
 
 predict_button: tk.Button = tk.Button(
     window,
@@ -95,19 +122,19 @@ predict_button: tk.Button = tk.Button(
         second_prediction_label.config(text=f"Second Prediction: {conv_predict()[1]}"),
     ],
 )
-predict_button.grid(row=2, column=1, sticky="NW", padx=20)
+predict_button.grid(row=3, column=1, sticky="NW", padx=20)
 
 explain_button: tk.Button = tk.Button(
     window,
     text="Explain",
     command=lambda: conv_explain(),
 )
-explain_button.grid(row=3, column=1, sticky="NW", padx=20)
+explain_button.grid(row=4, column=1, sticky="NW", padx=20)
 
 clear_button: tk.Button = tk.Button(
     window, text="Clear", command=lambda: draw_canva.delete("all")
 )
-clear_button.grid(row=4, column=1, sticky="NW", padx=20)
+clear_button.grid(row=5, column=1, sticky="NW", padx=20)
 
 # Bind the mouse to the canvas to draw only when the button is pressed
 window.bind("<B1-Motion>", draw_canva_paint)
