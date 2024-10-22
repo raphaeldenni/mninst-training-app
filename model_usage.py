@@ -137,6 +137,6 @@ clear_button: tk.Button = tk.Button(
 clear_button.grid(row=5, column=1, sticky="NW", padx=20)
 
 # Bind the mouse to the canvas to draw only when the button is pressed
-window.bind("<B1-Motion>", draw_canva_paint)
+draw_canva.bind("<B1-Motion>", draw_canva_paint)
 
 window.mainloop()
