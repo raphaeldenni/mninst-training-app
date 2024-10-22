@@ -49,7 +49,7 @@ def get_digit_image() -> np.ndarray:
     return image
 
 
-def conv_predict() -> tuple[int, int]:
+def model_predict() -> tuple[int, int]:
     """Predict the digit drawn on the canvas.
 
     Returns:
@@ -66,7 +66,7 @@ def conv_predict() -> tuple[int, int]:
     return digit, second_digit
 
 
-def conv_explain() -> None:
+def predict_explain() -> None:
     """Explain the prediction of a convolutional neural network."""
     digit_image = get_digit_image()
     (train_images, _), _ = ks.datasets.mnist.load_data()
@@ -118,8 +118,8 @@ predict_button: tk.Button = tk.Button(
     window,
     text="Predict",
     command=lambda: [
-        prediction_label.config(text=f"Prediction: {conv_predict()[0]}"),
-        second_prediction_label.config(text=f"Second Prediction: {conv_predict()[1]}"),
+        prediction_label.config(text=f"Prediction: {model_predict()[0]}"),
+        second_prediction_label.config(text=f"Second Prediction: {model_predict()[1]}"),
     ],
 )
 predict_button.grid(row=3, column=1, sticky="NW", padx=20)
@@ -127,7 +127,7 @@ predict_button.grid(row=3, column=1, sticky="NW", padx=20)
 explain_button: tk.Button = tk.Button(
     window,
     text="Explain",
-    command=lambda: conv_explain(),
+    command=lambda: predict_explain(),
 )
 explain_button.grid(row=4, column=1, sticky="NW", padx=20)
 
