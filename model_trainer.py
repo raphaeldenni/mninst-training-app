@@ -37,6 +37,15 @@ def add_conv_layers(model: Sequential, *args) -> Sequential:
 
 
 def add_dense_layers(model: Sequential, *args) -> Sequential:
+    """Add dense layers to a model.
+
+    Args:
+        model (Sequential): The model to add layers to.
+        *args: The arguments to pass to the model.
+
+    Returns:
+        Sequential: The model with the added layers.
+    """
     # Add an input layer
     model.add(ks.layers.InputLayer(shape=(28, 28, 1)))
 
