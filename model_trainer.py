@@ -2,12 +2,15 @@ import keras as ks
 from keras import Sequential
 
 
-def add_conv_layers(model: Sequential, *args) -> Sequential:
+def add_conv_layers(
+    model: Sequential, dropout_value: float, dense_units: int
+) -> Sequential:
     """Add convolutional layers to a model.
 
     Args:
         model (Sequential): The model to add layers to.
-        *args: The arguments to pass to the model.
+        dropout_value (float): The dropout value.
+        dense_units (int): The number of units in the dense layer.
 
     Returns:
         Sequential: The model with the added layers.
@@ -28,20 +31,23 @@ def add_conv_layers(model: Sequential, *args) -> Sequential:
     model.add(ks.layers.Dense(64, activation="relu"))
 
     # Dropout layer to prevent overfitting
-    model.add(ks.layers.Dropout(args[0]))
+    model.add(ks.layers.Dropout(dropout_value))
 
     # Output layer with 10 units for the 10 digit classes, with softmax activation
-    model.add(ks.layers.Dense(args[1], activation="softmax"))
+    model.add(ks.layers.Dense(dense_units, activation="softmax"))
 
     return model
 
 
-def add_dense_layers(model: Sequential, *args) -> Sequential:
+def add_dense_layers(
+    model: Sequential, dropout_value: float, dense_units: int
+) -> Sequential:
     """Add dense layers to a model.
 
     Args:
         model (Sequential): The model to add layers to.
-        *args: The arguments to pass to the model.
+        dropout_value (float): The dropout value.
+        dense_units (int): The number of units in the dense layer.
 
     Returns:
         Sequential: The model with the added layers.
@@ -58,10 +64,10 @@ def add_dense_layers(model: Sequential, *args) -> Sequential:
     model.add(ks.layers.Dense(64, activation="relu"))
 
     # Dropout layer to prevent overfitting
-    model.add(ks.layers.Dropout(args[0]))
+    model.add(ks.layers.Dropout(dropout_value))
 
     # Output layer with 10 units for the 10 digit classes, with softmax activation
-    model.add(ks.layers.Dense(args[1], activation="softmax"))
+    model.add(ks.layers.Dense(dense_units, activation="softmax"))
 
     return model
 
