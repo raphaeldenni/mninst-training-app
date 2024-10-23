@@ -34,8 +34,6 @@ You can also specify the following arguments:
 
 - `model`: The model to use. Can be either `conv` or `dense`. Default is `conv`.
 - `epochs`: The number of epochs to train for. Default is 20.
-- `dropout`: The dropout rate. Default is 0.5.
-- `units`: The number of units in the dense layer. Default is 10.
 - `learning rate`: The learning rate. Default is 0.0003/0.0005 for convolutional/dense models.
 
 ### Testing
@@ -55,12 +53,8 @@ python3 model_usage.py
 
 Best values for convolutional model:
 - 20 epochs (stop at 19)
-- 0.5 dropout
-- 10 dense layer units
 - 0.0003 learning rate
 
 Best values for dense model:
 - 20 epochs (stop at 17)
-- 0.5 dropout
-- 10 dense layer units
 - 0.0005 learning rate

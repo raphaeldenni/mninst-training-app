@@ -67,7 +67,7 @@ joblib==1.4.2
     # via scikit-learn
 keras==3.6.0
     # via
-    #   conv-learning (pyproject.toml)
+    #   mninst-learning (pyproject.toml)
     #   tensorflow
 kiwisolver==1.4.7
     # via matplotlib
@@ -82,7 +82,7 @@ markdown-it-py==3.0.0
 markupsafe==3.0.2
     # via werkzeug
 matplotlib==3.9.2
-    # via conv-learning (pyproject.toml)
+    # via mninst-learning (pyproject.toml)
 mdurl==0.1.2
     # via markdown-it-py
 ml-dtypes==0.4.1
@@ -95,7 +95,7 @@ numba==0.60.0
     # via shap
 numpy==1.26.4
     # via
-    #   conv-learning (pyproject.toml)
+    #   mninst-learning (pyproject.toml)
     #   contourpy
     #   etils
     #   h5py
@@ -126,7 +126,7 @@ pandas==2.2.3
     # via shap
 pillow==11.0.0
     # via
-    #   conv-learning (pyproject.toml)
+    #   mninst-learning (pyproject.toml)
     #   matplotlib
 promise==2.3
     # via tensorflow-datasets
@@ -146,7 +146,7 @@ pygments==2.18.0
 pyparsing==3.2.0
     # via matplotlib
 pyqt5==5.15.11
-    # via conv-learning (pyproject.toml)
+    # via mninst-learning (pyproject.toml)
 pyqt5-qt5==5.15.15
     # via pyqt5
 pyqt5-sip==12.15.0
@@ -161,7 +161,7 @@ requests==2.32.3
     # via
     #   tensorflow
     #   tensorflow-datasets
-rich==13.9.2
+rich==13.9.3
     # via keras
 scikit-learn==1.5.2
     # via shap
@@ -174,7 +174,7 @@ setuptools==75.2.0
     #   tensorboard
     #   tensorflow
 shap==0.46.0
-    # via conv-learning (pyproject.toml)
+    # via mninst-learning (pyproject.toml)
 simple-parsing==0.1.6
     # via tensorflow-datasets
 six==1.16.0
@@ -192,9 +192,9 @@ tensorboard==2.17.1
 tensorboard-data-server==0.7.2
     # via tensorboard
 tensorflow==2.17.0
-    # via conv-learning (pyproject.toml)
+    # via mninst-learning (pyproject.toml)
 tensorflow-datasets==4.9.6
-    # via conv-learning (pyproject.toml)
+    # via mninst-learning (pyproject.toml)
 tensorflow-metadata==1.16.1
     # via tensorflow-datasets
 termcolor==2.5.0
