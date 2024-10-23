@@ -1,86 +1,70 @@
 import keras as ks
 from keras import Sequential
 
+INPUT_LAYER_SHAPE: tuple[int, int, int] = (28, 28, 1)
 
-def add_conv_layers(
-    model: Sequential, dropout_value: float, dense_units: int
-) -> Sequential:
+CONV_LAYER_SIZE: int = 32
+DENSE_LAYER_SIZE: int = 512
+
+OUTPUT_LAYER_SIZE: int = 10
+
+
+def add_conv_layers(model: Sequential) -> Sequential:
     """Add convolutional layers to a model.
 
     Args:
         model (Sequential): The model to add layers to.
-        dropout_value (float): The dropout value.
-        dense_units (int): The number of units in the dense layer.
 
     Returns:
         Sequential: The model with the added layers.
     """
-    # Add an input layer
-    model.add(ks.layers.InputLayer(shape=(28, 28, 1)))
-
-    # Add a Convolutional layer with 32 filters, a 3x3 kernel, and ReLU activation
-    model.add(ks.layers.Conv2D(32, (3, 3), activation="relu"))
-    model.add(ks.layers.MaxPooling2D((2, 2)))  # Add a Max Pooling layer
+    # Add a Convolutional layer with 32 filters, a 3x3 kernel, and ReLU activation + pooling layer
+    model.add(ks.layers.Conv2D(CONV_LAYER_SIZE, (3, 3), activation="relu"))
+    model.add(ks.layers.MaxPooling2D((2, 2)))
 
     # Add another convolutional layer and pooling layer
-    model.add(ks.layers.Conv2D(64, (3, 3), activation="relu", name="conv2d_last"))
+    model.add(
+        ks.layers.Conv2D(
+            CONV_LAYER_SIZE * 2, (3, 3), activation="relu", name="conv2d_last"
+        )
+    )
     model.add(ks.layers.MaxPooling2D((2, 2)))
 
     # Flatten the results and add a fully connected layer
     model.add(ks.layers.Flatten())
     model.add(ks.layers.Dense(64, activation="relu"))
 
-    # Dropout layer to prevent overfitting
-    model.add(ks.layers.Dropout(dropout_value))
-
-    # Output layer with 10 units for the 10 digit classes, with softmax activation
-    model.add(ks.layers.Dense(dense_units, activation="softmax"))
-
     return model
 
 
-def add_dense_layers(
-    model: Sequential, dropout_value: float, dense_units: int
-) -> Sequential:
+def add_dense_layers(model: Sequential) -> Sequential:
     """Add dense layers to a model.
 
     Args:
         model (Sequential): The model to add layers to.
-        dropout_value (float): The dropout value.
-        dense_units (int): The number of units in the dense layer.
 
     Returns:
         Sequential: The model with the added layers.
     """
-    # Add an input layer
-    model.add(ks.layers.InputLayer(shape=(28, 28, 1)))
-
-    # Flatten the results and add a fully connected layer
     model.add(ks.layers.Flatten())
-    model.add(ks.layers.Dense(64, activation="relu"))
+    model.add(ks.layers.Dense(DENSE_LAYER_SIZE, activation="relu"))
 
-    model.add(ks.layers.Dense(64, activation="relu"))
+    model.add(ks.layers.Dropout(0.1))
 
-    model.add(ks.layers.Dense(64, activation="relu"))
-
-    # Dropout layer to prevent overfitting
-    model.add(ks.layers.Dropout(dropout_value))
-
-    # Output layer with 10 units for the 10 digit classes, with softmax activation
-    model.add(ks.layers.Dense(dense_units, activation="softmax"))
+    model.add(ks.layers.Dense(DENSE_LAYER_SIZE, activation="relu"))
 
     return model
 
 
 def main() -> None:
     """Train a model to recognize handwritten digits."""
+    # --- Data Preparation ---
+
     # Model type
     model_type: str = input("Enter the model type (conv or dense): ")
 
-    # Get the data
+    # Get user input
     epochs_it: int = int(input("Enter the number of epochs: "))
-    dropout_value: float = float(input("Enter the dropout value (0.0 to 1.0): "))
-    dense_units: int = int(input("Enter the number of units in the dense layer: "))
     learning_rate: float = float(input("Enter the learning rate (0.0... to 1.0): "))
 
     (train_images, train_labels), (test_images, test_labels) = (
@@ -95,22 +79,25 @@ def main() -> None:
     train_images = train_images.reshape((train_images.shape[0], 28, 28, 1))
     test_images = test_images.reshape((test_images.shape[0], 28, 28, 1))
 
-    # Build the model
+    # --- Model Building ---
+
     model = ks.models.Sequential()
 
-    layers_kwargs = {
-        "model": model,
-        "dropout_value": dropout_value,
-        "dense_units": dense_units,
-    }
+    # Add an input layer with the shape of the input data
+    model.add(ks.layers.InputLayer(shape=INPUT_LAYER_SHAPE))
 
+    # Add intermediate layers
     match model_type:
         case "conv":
-            model = add_conv_layers(**layers_kwargs)
+            model = add_conv_layers(model)
         case "dense":
-            model = add_dense_layers(**layers_kwargs)
+            model = add_dense_layers(model)
         case _:
-            model = add_conv_layers(**layers_kwargs)
+            model = add_conv_layers(model)
+
+    # Output layer with 10 units for the 10 digit classes, with softmax activation + dropout to prevent overfitting
+    model.add(ks.layers.Dropout(0.5))
+    model.add(ks.layers.Dense(OUTPUT_LAYER_SIZE, activation="softmax"))
 
     model.compile(
         optimizer=ks.optimizers.Adam(learning_rate=learning_rate),  # pyright: ignore
@@ -120,6 +107,8 @@ def main() -> None:
 
     model.summary()
 
+    # --- Callbacks ---
+
     # Add EarlyStopping callback to stop training when validation accuracy stops improving
     early_stopping = ks.callbacks.EarlyStopping(
         monitor="val_accuracy", patience=3, restore_best_weights=True, mode="max"
@@ -128,7 +117,8 @@ def main() -> None:
     # Add TensorBoard callback to visualize training
     tensorboard = ks.callbacks.TensorBoard(log_dir="./logs")
 
-    # Train the model
+    # --- Train the model ---
+
     model.fit(
         train_images,
         train_labels,
