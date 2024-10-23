@@ -5,6 +5,8 @@ import numpy as np
 import shap
 
 DEFAULT_PEN_WIDTH: int = 15
+MIN_PEN_WIDTH: int = 10
+MAX_PEN_WIDTH: int = 20
 
 
 def draw_canva_paint(event: tk.Event) -> None:
@@ -16,17 +18,9 @@ def draw_canva_paint(event: tk.Event) -> None:
     x1, y1 = (event.x - 1), (event.y - 1)
     x2, y2 = (event.x + 1), (event.y + 1)
 
-    draw_canva.create_oval(x1, y1, x2, y2, fill="black", width=pen_width)
-
-
-def get_pen_width(event: tk.Event) -> None:
-    """Get the pen width from the scale.
-
-    Args:
-        event (tk.Event): The event that triggered the function.
-    """
-    global pen_width
     pen_width = int(pen_width_slider.get())
+
+    draw_canva.create_oval(x1, y1, x2, y2, fill="black", width=pen_width)
 
 
 def get_digit_image() -> np.ndarray:
@@ -91,8 +85,6 @@ model = ks.models.load_model("model.keras")
 # Display a window to draw with mouse a digit and predict it
 window: tk.Tk = tk.Tk()
 
-pen_width: int = DEFAULT_PEN_WIDTH
-
 draw_canva: tk.Canvas = tk.Canvas(window, width=280, height=280, bg="white")
 draw_canva.grid(row=0, column=0, rowspan=6)
 
@@ -104,12 +96,11 @@ second_prediction_label.grid(row=1, column=1, sticky="NW", padx=20)
 
 pen_width_slider: tk.Scale = tk.Scale(
     window,
-    from_=10,
-    to=20,
+    from_=MIN_PEN_WIDTH,
+    to=MAX_PEN_WIDTH,
     orient="horizontal",
     label="Width",
     length=200,
-    command=get_pen_width,  # type: ignore
 )
 pen_width_slider.set(DEFAULT_PEN_WIDTH)
 pen_width_slider.grid(row=2, column=1, sticky="NW", padx=20)
