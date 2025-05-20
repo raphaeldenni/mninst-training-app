@@ -1,7 +1,7 @@
 import keras as ks
 from keras import Sequential
 
-INPUT_LAYER_SHAPE: tuple[int, int, int] = (28, 28, 1)
+# INPUT_LAYER_SHAPE: tuple[int, int, int] = (28, 28, 1)
 
 CONV_LAYER_SIZE: int = 32
 DENSE_LAYER_SIZE: int = 512
@@ -46,7 +46,7 @@ def add_dense_layers(model: Sequential) -> Sequential:
     Returns:
         Sequential: The model with the added layers.
     """
-    model.add(ks.layers.Flatten())
+    # model.add(ks.layers.Flatten())
     model.add(ks.layers.Dense(DENSE_LAYER_SIZE, activation="relu"))
 
     model.add(ks.layers.Dropout(0.1))
@@ -63,6 +63,9 @@ def main() -> None:
     # Model type
     model_type: str = input("Enter the model type (conv or dense): ")
 
+    if model_type is None:
+        model_type = "conv"
+
     # Get user input
     epochs_it: int = int(input("Enter the number of epochs: "))
     learning_rate: float = float(input("Enter the learning rate (0.0... to 1.0): "))
@@ -71,29 +74,34 @@ def main() -> None:
         ks.datasets.mnist.load_data()
     )
 
+    # Reshape data to include a single color channel
+    match model_type:
+        case "conv":
+            train_images = train_images.reshape((train_images.shape[0], 28, 28, 1))
+            test_images = test_images.reshape((test_images.shape[0], 28, 28, 1))
+
+        case "dense":
+            train_images = train_images.reshape((train_images.shape[0], 28 * 28))
+            test_images = test_images.reshape((test_images.shape[0], 28 * 28))
+
     # Normalize pixel values to be between 0 and 1
     train_images = train_images / 255.0
     test_images = test_images / 255.0
-
-    # Reshape data to include a single color channel
-    train_images = train_images.reshape((train_images.shape[0], 28, 28, 1))
-    test_images = test_images.reshape((test_images.shape[0], 28, 28, 1))
 
     # --- Model Building ---
 
     model = ks.models.Sequential()
 
     # Add an input layer with the shape of the input data
-    model.add(ks.layers.InputLayer(shape=INPUT_LAYER_SHAPE))
+    # model.add(ks.layers.InputLayer(shape=INPUT_LAYER_SHAPE))
 
     # Add intermediate layers
     match model_type:
         case "conv":
             model = add_conv_layers(model)
+
         case "dense":
             model = add_dense_layers(model)
-        case _:
-            model = add_conv_layers(model)
 
     # Output layer with 10 units for the 10 digit classes, with softmax activation + dropout to prevent overfitting
     model.add(ks.layers.Dropout(0.5))
@@ -104,8 +112,6 @@ def main() -> None:
         loss="sparse_categorical_crossentropy",
         metrics=["accuracy"],
     )
-
-    model.summary()
 
     # --- Callbacks ---
 
@@ -126,6 +132,8 @@ def main() -> None:
         validation_data=(test_images, test_labels),
         callbacks=[early_stopping, tensorboard],
     )
+
+    model.summary()
 
     model.save("model.keras")
 
