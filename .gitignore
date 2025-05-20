@@ -2,6 +2,6 @@
 .ruff_cache/
 *.pyc
 
-model.keras
+*.keras
 digit.eps
 logs/
